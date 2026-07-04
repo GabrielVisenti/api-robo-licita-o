@@ -1,0 +1,5 @@
+class PrefeituraStatus:
+    PENDENTE = "PENDENTE"
+    PROCESSANDO = "PROCESSANDO"
+    CONCLUIDO = "CONCLUIDO"
+    ERRO = "ERRO"

@@ -1,38 +1,22 @@
-import httpx
+from app.constants.status import PrefeituraStatus
+from app.models.prefeitura import Prefeitura
 
 
 class PrefeituraService:
 
-    def gerar_urls_possiveis(self, nome_municipio: str, uf: str):
-        nome_normalizado = (
-            nome_municipio.lower()
-            .replace(" ", "")
-            .replace("ã", "a")
-            .replace("á", "a")
-            .replace("à", "a")
-            .replace("â", "a")
-            .replace("é", "e")
-            .replace("ê", "e")
-            .replace("í", "i")
-            .replace("ó", "o")
-            .replace("ô", "o")
-            .replace("õ", "o")
-            .replace("ú", "u")
-            .replace("ç", "c")
+    def __init__(self, prefeitura_repository):
+        self.prefeitura_repository = prefeitura_repository
+
+    def buscar_por_municipio_id(self, municipio_id: int):
+        return self.prefeitura_repository.buscar_por_municipio_id(municipio_id)
+
+    def criar_prefeitura(self, municipio_id: int):
+        prefeitura = Prefeitura(
+            municipio_id=municipio_id,
+            status=PrefeituraStatus.PENDENTE,
         )
 
-        uf = uf.lower()
+        self.prefeitura_repository.criar(prefeitura)
+        self.prefeitura_repository.salvar_alteracoes()
 
-        return [
-            f"https://www.{nome_normalizado}.{uf}.gov.br",
-            f"https://{nome_normalizado}.{uf}.gov.br",
-            f"https://www.prefeitura{nome_normalizado}.{uf}.gov.br",
-            f"https://prefeitura{nome_normalizado}.{uf}.gov.br",
-        ]
-
-    def verificar_url(self, url: str) -> bool:
-        try:
-            response = httpx.get(url, timeout=10, follow_redirects=True)
-            return response.status_code < 400
-        except Exception:
-            return False
+        return prefeitura
