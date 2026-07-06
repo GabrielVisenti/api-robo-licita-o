@@ -1,6 +1,7 @@
-from app.models.discovery_result import DiscoveryResult
-from app.services.discovery.http_client import HttpClient
+from app.constants.status import PrefeituraStatus
+from app.domain.discovery_result import DiscoveryResult
 from app.services.discovery.providers.url_provider import UrlProvider
+from app.services.discovery.url_validator import UrlValidator
 
 
 class DiscoveryEngine:
@@ -9,31 +10,30 @@ class DiscoveryEngine:
     """
 
     def __init__(self):
-        self.http_client = HttpClient()
+        self.url_validator = UrlValidator()
 
         self.providers = [
             UrlProvider(),
         ]
 
-    def verificar_site(self, url: str) -> bool:
-        response = self.http_client.get(url)
-
-        if response is None:
-            return False
-
-        return response.status_code < 400
-
     def descobrir(self, municipio_nome: str, uf: str) -> DiscoveryResult:
 
         for provider in self.providers:
 
-            resultado = provider.descobrir(
-                municipio_nome,
-                uf,
-                self.verificar_site,
-            )
+            urls = provider.descobrir(municipio_nome, uf)
 
-            if resultado.site_oficial:
-                return resultado
+            for url in urls:
 
-        return DiscoveryResult()
+                if self.url_validator.validar(url):
+
+                    return DiscoveryResult(
+                        site_oficial=url,
+                        status=PrefeituraStatus.CONCLUIDO,
+                        provider=provider.nome,
+                        observacao=f"Site encontrado via {provider.nome}.",
+                    )
+
+        return DiscoveryResult(
+            status=PrefeituraStatus.ERRO,
+            observacao="Nenhuma estratégia encontrou um site válido.",
+        )
