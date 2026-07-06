@@ -18,12 +18,16 @@ def main():
         print()
         print(f"Município: {nome} - {uf}")
 
-        site = engine.descobrir_site_prefeitura(nome, uf)
+        resultado = engine.descobrir(nome, uf)
 
-        if site:
-            print(f"✅ Site encontrado: {site}")
+        if resultado.site_oficial:
+            print(f"✅ Site encontrado: {resultado.site_oficial}")
+            print(f"Provider: {resultado.provider}")
+            print(f"Status: {resultado.status}")
         else:
             print("❌ Site não encontrado")
+            print(f"Status: {resultado.status}")
+            print(f"Observação: {resultado.observacao}")
 
 
 if __name__ == "__main__":

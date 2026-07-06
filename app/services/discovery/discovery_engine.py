@@ -1,15 +1,19 @@
+from app.models.discovery_result import DiscoveryResult
 from app.services.discovery.http_client import HttpClient
 from app.services.discovery.providers.url_provider import UrlProvider
 
 
 class DiscoveryEngine:
     """
-    Motor central de descoberta do GV Radar.
+    Pipeline principal de descoberta do GV Radar.
     """
 
     def __init__(self):
         self.http_client = HttpClient()
-        self.url_provider = UrlProvider()
+
+        self.providers = [
+            UrlProvider(),
+        ]
 
     def verificar_site(self, url: str) -> bool:
         response = self.http_client.get(url)
@@ -19,17 +23,17 @@ class DiscoveryEngine:
 
         return response.status_code < 400
 
-    def descobrir_site_prefeitura(self, municipio_nome: str, uf: str):
-        urls = self.url_provider.gerar_urls_prefeitura(municipio_nome, uf)
+    def descobrir(self, municipio_nome: str, uf: str) -> DiscoveryResult:
 
-        for url in urls:
-            if self.verificar_site(url):
-                return url
+        for provider in self.providers:
 
-        return None
+            resultado = provider.descobrir(
+                municipio_nome,
+                uf,
+                self.verificar_site,
+            )
 
-    def descobrir_diario_oficial(self, site_prefeitura: str):
-        return None
+            if resultado.site_oficial:
+                return resultado
 
-    def descobrir_portal_licitacoes(self, site_prefeitura: str):
-        return None
+        return DiscoveryResult()

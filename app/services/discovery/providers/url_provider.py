@@ -1,7 +1,12 @@
 import unicodedata
 
+from app.constants.status import PrefeituraStatus
+from app.models.discovery_result import DiscoveryResult
+
 
 class UrlProvider:
+
+    nome = "UrlProvider"
 
     def normalizar_nome(self, nome: str) -> str:
         texto = nome.lower().strip()
@@ -25,3 +30,21 @@ class UrlProvider:
             f"https://www.prefeitura{nome}.{uf}.gov.br",
             f"https://prefeitura{nome}.{uf}.gov.br",
         ]
+
+    def descobrir(self, municipio_nome: str, uf: str, verificar_site):
+        urls = self.gerar_urls_prefeitura(municipio_nome, uf)
+
+        for url in urls:
+            if verificar_site(url):
+                return DiscoveryResult(
+                    site_oficial=url,
+                    status=PrefeituraStatus.CONCLUIDO,
+                    provider=self.nome,
+                    observacao="Site encontrado por padrão de URL.",
+                )
+
+        return DiscoveryResult(
+            status=PrefeituraStatus.ERRO,
+            provider=self.nome,
+            observacao="Nenhuma URL padrão respondeu com sucesso.",
+        )
