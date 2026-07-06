@@ -1,5 +1,7 @@
 import unicodedata
 
+from app.constants.url_patterns import URL_PATTERNS
+
 
 class UrlProvider:
 
@@ -21,9 +23,9 @@ class UrlProvider:
         nome = self.normalizar_nome(municipio_nome)
         uf = uf.lower()
 
-        return [
-            f"https://www.{nome}.{uf}.gov.br",
-            f"https://{nome}.{uf}.gov.br",
-            f"https://www.prefeitura{nome}.{uf}.gov.br",
-            f"https://prefeitura{nome}.{uf}.gov.br",
-        ]
+        urls = {
+            pattern.format(nome=nome, uf=uf)
+            for pattern in URL_PATTERNS
+        }
+
+        return sorted(urls)
