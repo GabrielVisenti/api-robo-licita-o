@@ -19,17 +19,18 @@ class DiscoveryEngine:
     def descobrir(self, municipio_nome: str, uf: str) -> DiscoveryResult:
 
         for provider in self.providers:
-
             urls = provider.descobrir(municipio_nome, uf)
 
             for url in urls:
-             if self.url_validator.validar(url):
-                 return DiscoveryResult(
-                site_oficial=url,
-                status=PrefeituraStatus.CONCLUIDO,
-                provider=provider.nome,
-                observacao=f"Site encontrado via {provider.nome}.",
-             )
+                resultado_validacao = self.url_validator.validar(url)
+
+                if resultado_validacao.valido:
+                    return DiscoveryResult(
+                        site_oficial=resultado_validacao.url_final or url,
+                        status=PrefeituraStatus.CONCLUIDO,
+                        provider=provider.nome,
+                        observacao=f"Site encontrado via {provider.nome}.",
+                    )
 
         return DiscoveryResult(
             status=PrefeituraStatus.ERRO,
