@@ -4,13 +4,18 @@ import httpx
 class HttpClient:
     """
     Cliente HTTP centralizado do GV Radar.
-
-    Todas as requisições HTTP do sistema deverão passar por esta classe.
     """
 
     def __init__(self):
+        timeout = httpx.Timeout(
+            connect=3.0,
+            read=5.0,
+            write=5.0,
+            pool=3.0,
+        )
+
         self.client = httpx.Client(
-            timeout=20,
+            timeout=timeout,
             follow_redirects=True,
             headers={
                 "User-Agent": (
@@ -22,9 +27,29 @@ class HttpClient:
 
     def get(self, url: str):
         try:
-            response = self.client.get(url)
+            return self.client.get(url)
 
-            return response
-
-        except Exception:
+        except httpx.TimeoutException:
             return None
+
+        except httpx.ConnectError:
+            return None
+
+        except httpx.HTTPError:
+            return None
+
+    def head(self, url: str):
+        try:
+            return self.client.head(url)
+
+        except httpx.TimeoutException:
+            return None
+
+        except httpx.ConnectError:
+            return None
+
+        except httpx.HTTPError:
+            return None
+
+    def close(self):
+        self.client.close()

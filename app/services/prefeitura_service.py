@@ -15,6 +15,9 @@ class PrefeituraService:
 
     def listar_pendentes(self, limite: int = 10) -> list[Prefeitura]:
         return self.prefeitura_repository.listar_pendentes(limite)
+    
+    def listar(self, limite: int = 100) -> list[Prefeitura]:
+        return self.prefeitura_repository.listar(limite)
 
     def criar_prefeitura(self, municipio_id: int) -> Prefeitura:
         prefeitura = Prefeitura(

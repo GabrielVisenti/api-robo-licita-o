@@ -17,6 +17,14 @@ class PrefeituraRepository:
             .first()
         )
 
+    def listar(self, limite: int = 100) -> list[Prefeitura]:
+        return (
+            self.db.query(Prefeitura)
+            .options(joinedload(Prefeitura.municipio))
+            .limit(limite)
+            .all()
+        )
+
     def listar_pendentes(self, limite: int = 10) -> list[Prefeitura]:
         return (
             self.db.query(Prefeitura)

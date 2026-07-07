@@ -23,15 +23,13 @@ class DiscoveryEngine:
             urls = provider.descobrir(municipio_nome, uf)
 
             for url in urls:
-
-                if self.url_validator.validar(url):
-
-                    return DiscoveryResult(
-                        site_oficial=url,
-                        status=PrefeituraStatus.CONCLUIDO,
-                        provider=provider.nome,
-                        observacao=f"Site encontrado via {provider.nome}.",
-                    )
+             if self.url_validator.validar(url):
+                 return DiscoveryResult(
+                site_oficial=url,
+                status=PrefeituraStatus.CONCLUIDO,
+                provider=provider.nome,
+                observacao=f"Site encontrado via {provider.nome}.",
+             )
 
         return DiscoveryResult(
             status=PrefeituraStatus.ERRO,
